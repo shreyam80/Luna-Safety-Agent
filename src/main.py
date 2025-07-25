@@ -1,40 +1,66 @@
+import threading
 import time
-from schema import InputData
-from planner import generate_plan
+from memory import memory
+from planner import plan_next_actions
 from executor import execute_plan
 
+# Dummy functions you'll replace with real ones
+def get_latest_transcript():
+    # Simulate transcript input — replace with actual microphone or stream
+    return "I think someone is following me"
 
+def new_transcript_available():
+    # Replace with real logic (e.g. microphone buffer updated)
+    return True
 
-# This will simulate incoming sensor data
-def simulate_sensor_input():
-    return InputData(
-        transcript="I think someone is following me",
-        location={"lat": 40.7128, "lon": -74.0060},
-        location_history=[
-            {"lat": 40.7130, "lon": -74.0062},
-            {"lat": 40.7135, "lon": -74.0065}
-        ],
-        speed=2.5,
-        is_danger=True,
-        permanent_flags={
-            "home": {"lat": 40.7110, "lon": -74.0050},
-            "contacts": ["+1234567890", "+1098765432"],
-            "student": True
-        }
-    )
+def update_sensor_memory():
+    # Simulate updating location, speed, etc. — you'll fill this out
+    print("📡 Sensor data updated")
+    memory.update_flags({
+        "last_location": {"lat": 40.7128, "lon": -74.0060},
+        "speed_mph": 2.5
+    })
 
-def main_loop():
+# Background thread that updates location/speed every 1 second
+def read_sensor_data():
     while True:
-        input_data = simulate_sensor_input()
+        update_sensor_memory()
+        time.sleep(1)
 
-        # Step 1: Generate plan from LLM
-        subtasks = generate_plan(input_data)
+def main():
+    # Start the sensor thread
+    sensor_thread = threading.Thread(target=read_sensor_data)
+    sensor_thread.daemon = True
+    sensor_thread.start()
 
-        # Step 2: Execute those subtasks
-        execute_plan(subtasks, input_data)
+    print("🚀 Luna is live. Waiting for user input...")
 
-        # Wait for a few seconds before checking again
-        time.sleep(10)
+    while True:
+        if new_transcript_available():
+            transcript = get_latest_transcript()
+
+            if transcript.strip() != "":
+                print(f"🎙️ Heard: {transcript}")
+
+                flags = {
+                    "tone_anxiety": True,
+                    "danger_keywords": True,
+                    "silent_mode": False
+                }
+
+                memory.update_flags(flags)
+                memory.log_transcript(transcript)
+
+                subtasks = plan_next_actions(
+                    transcript,
+                    flags,
+                    memory.get_memory_snapshot(),
+                    memory.get_actions_done()
+                )
+
+                execute_plan(subtasks)
+        
+        time.sleep(0.2)  # Keep CPU usage low
 
 if __name__ == "__main__":
-    main_loop()
+    main()

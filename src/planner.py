@@ -1,8 +1,26 @@
-from gemini import call_gemini_planner
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
 from memory import get_memory_snapshot
 
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+def call_gemini_planner(prompt: str):
+    model = genai.GenerativeModel("gemini-pro")
+    response = model.generate_content(prompt)
+    
+    try:
+        # Try to safely evaluate the LLM response into a Python object (e.g., list of dicts)
+        import ast
+        return ast.literal_eval(response.text)
+    except Exception as e:
+        print("Error parsing Gemini output:", e)
+        print("Raw output:", response.text)
+        return []
+
 # The planner takes user input, flags, and memory to generate the next set of subtasks.
-def plan_next_actions(transcript, flags, memory):
+def plan_next_actions(transcript, flags, memory, actions_done):
     context_prompt = f"""
 You are Luna, a personal safety agent that helps users in risky situations.
 

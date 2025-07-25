@@ -1,18 +1,27 @@
-from typing import Optional, List, Dict
+from typing import List, Dict, Optional
+from dataclasses import dataclass
 
+@dataclass
+class LocationPoint:
+    timestamp: str
+    lat: float
+    lon: float
+
+@dataclass
+class DangerFlags:
+    tone_anxiety: bool
+    danger_keywords: bool
+    unusual_location: bool
+    fast_movement: bool
+    silent_mode: Optional[bool] = False  # optional, can be set by planner
+
+@dataclass
 class InputData:
-    def __init__(
-        self,
-        transcript: str,
-        location: Dict[str, float],
-        location_history: List[Dict[str, float]],
-        speed: float,
-        is_danger: bool,
-        permanent_flags: Dict[str, any]
-    ):
-        self.transcript = transcript
-        self.location = location  # e.g., {"lat": 37.7749, "lon": -122.4194}
-        self.location_history = location_history
-        self.speed = speed
-        self.is_danger = is_danger
-        self.permanent_flags = permanent_flags  # e.g., {"home": {...}, "contacts": [...]}
+    voice_transcript: str
+    location_history: List[LocationPoint]
+    danger_flags: DangerFlags
+    speed_mph: float
+    speed_change: float
+    voice_output_disabled: bool
+    timestamp: str
+
