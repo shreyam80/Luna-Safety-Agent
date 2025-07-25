@@ -6,7 +6,6 @@ class Memory:
         # Initial internal memory store
         self.flags = {
             "is_danger_mode": False,
-            "code_phrase_detected": False,
             "last_route": None,
         }
         self.voice_log = []  # Stores voice transcripts

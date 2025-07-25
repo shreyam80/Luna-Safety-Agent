@@ -1,0 +1,26 @@
+
+----- EVENT LOG -----
+voice_transcript: Help, someone is following me
+danger_flags: {'is_danger': True, 'code_phrase_detected': False, 'fast_walking': False}
+location: New York, NY
+timestamp: 2025-07-25T15:14:01.886582
+Logged at: 2025-07-25T15:14:01.886732
+
+----- EVENT LOG -----
+voice_transcript: Help, someone is following me
+danger_flags: {'is_danger': True, 'code_phrase_detected': False, 'fast_walking': False}
+location: New York, NY
+timestamp: 2025-07-25T15:20:21.517633
+Logged at: 2025-07-25T15:20:21.517704
+
+----- EVENT LOG -----
+transcript: Help, someone is following me
+location: New York, NY
+flags: {'is_danger': True}
+Logged at: 2025-07-25T15:38:23.337500
+
+----- EVENT LOG -----
+transcript: Help, someone is following me
+location: New York, NY
+flags: {'is_danger': True}
+Logged at: 2025-07-25T15:38:31.588599

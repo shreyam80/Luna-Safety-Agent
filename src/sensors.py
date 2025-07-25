@@ -19,14 +19,27 @@ def get_location():
     return location
 
 # Function to generate structured input data for the agent
-def generate_input_data():
+def get_sensor_data():
     voice = get_voice_transcript()
     location = get_location()
+
+    # Check for danger based on keywords
+    danger_keywords = ["help", "follow", "scared", "unsafe"]
+    is_danger = any(keyword in voice.lower() for keyword in danger_keywords)
+
+    # Construct sensor output
+    return {
+        "transcript": voice,  # ✅ Make sure this line exists
+        "location": location,
+        "flags": {
+            "is_danger": True,
+        },
+    }
+
 
     # Flags for planning (can add more sophisticated ones later)
     danger_flags = {
         "is_danger": any(word in voice.lower() for word in ["help", "follow", "scared", "danger"]),
-        "code_phrase_detected": "pineapple" in voice.lower(),
         "fast_walking": False  # Placeholder — could be GPS delta based in future
     }
 
@@ -39,6 +52,6 @@ def generate_input_data():
 
 # For testing this file directly
 if __name__ == "__main__":
-    data = generate_input_data()
+    data = get_sensor_data()
     print("\n📦 Input Data:")
     print(data)
