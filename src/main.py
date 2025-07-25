@@ -3,6 +3,8 @@ from schema import InputData
 from planner import generate_plan
 from executor import execute_plan
 
+
+
 # This will simulate incoming sensor data
 def simulate_sensor_input():
     return InputData(
