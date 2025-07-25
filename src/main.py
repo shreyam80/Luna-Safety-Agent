@@ -2,7 +2,7 @@ import threading
 import time
 from memory import memory
 from planner import plan_next_actions
-from executor import execute_plan
+from executor import execute_subtasks
 
 # Dummy functions you'll replace with real ones
 def get_latest_transcript():
@@ -58,7 +58,7 @@ def main():
                     memory.get_actions_done()
                 )
 
-                execute_plan(subtasks)
+                execute_subtasks(subtasks)
         
         time.sleep(0.2)  # Keep CPU usage low
 

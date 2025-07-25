@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-from memory import get_memory_snapshot
+from memory import memory
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
@@ -30,7 +30,7 @@ Current danger flags:
 {flags}
 
 Memory Snapshot:
-{memory}
+{memory.get_memory_snapshot()}
 
 Actions already performed: {actions_done}
 

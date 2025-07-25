@@ -59,10 +59,12 @@ def was_action_done(action_name, memory=None):
         return memory.was_action_done(action_name)
     return False
 
+memory = Memory()
+
 # Test
 if __name__ == "__main__":
-    memory = Memory()
-    memory.update_flags({"is_danger_mode": True})
-    memory.log_transcript("Help, I feel unsafe")
-    memory.log_response("Sent alert to contacts")
-    memory.summarize()
+    test_memory = Memory()
+    test_memory.update_flags({"is_danger_mode": True})
+    test_memory.log_transcript("Help, I feel unsafe")
+    test_memory.log_response("Sent alert to contacts")
+    test_memory.summarize()
