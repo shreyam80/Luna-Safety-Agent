@@ -13,62 +13,80 @@ from datetime import datetime
 # - guide_to_safety()
 
 # 1. Say something to the user
-def speak(message):
-    print(f"🗣️ Luna says: {message}")
+
+import pyttsx3
+
+# Initialize engine once globally
+tts_engine = pyttsx3.init()
+
+def speak(text):
+    """
+    Use text-to-speech to say the given text out loud.
+    """
+    print(f"🗣️ Luna says: {text}")
+    try:
+        tts_engine.say(text)
+        tts_engine.runAndWait()
+    except Exception as e:
+        print("⚠️ Error using text-to-speech:", e)
+
+
+from dotenv import load_dotenv
+from twilio.rest import Client
+import os
+
+load_dotenv()
+
+account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
+
+client = Client(account_sid, auth_token)
 
 # 2. Notify user’s emergency contacts
-def send_text_to_contacts(contact_list=None, message="Luna has detected danger."):
-    contact_list = contact_list or ["+1234567890", "+1987654321"]
-    print("📤 Sending alert message to contacts:")
+def send_text_to_contacts(contact_list, message="This is Luna. The user may be in danger. Please check on them immediately."):
+    if not contact_list:
+        print("🚫 No contacts to notify.")
+        return
+
     for contact in contact_list:
-        print(f"  📱 To: {contact} — Message: {message}")
+        try:
+            msg = client.messages.create(
+                body=message,
+                from_=twilio_number,
+                to=contact
+            )
+            print(f"✅ Message sent to {contact}. SID: {msg.sid}")
+        except Exception as e:
+            print(f"❌ Failed to send message to {contact}: {e}")
 
-# 3. Call emergency services (mocked)
-def call_police():
-    print("🚨 Calling 911... [Mocked call initiated]")
+import datetime
 
-# 4. Suggest a nearby safe location
-def get_nearest_safe_location(current_location):
-    print(f"🗺️ Finding safe location from: {current_location}")
-    return "Starbucks on 5th Ave & 23rd St (open, staffed)"
+def record_voice_and_location(location=None):
+    now = datetime.datetime.now().isoformat()
+    with open("safety_log.txt", "a") as f:
+        f.write(f"{now} | Voice & Location Logging Started\n")
+        if location:
+            f.write(f"{now} | Location: {location}\n")
+    print("🎙️ Voice and location logging simulated.")
 
-# 5. Start logging for evidence (mocked)
-def record_voice_and_location():
-    print("🎙️🛰️ Recording voice and GPS for incident report...")
+from memory import memory
 
-# 6. Stop talking temporarily
 def stay_silent():
-    print("🤫 Luna is staying silent until reactivated...")
+    print("🔇 Luna will stop talking.")
+    memory.update_flags({"silent_mode": True})
 
-# 7. Provide step-by-step directions to safety (mocked)
-def guide_to_safety(destination):
-    print(f"🧭 Guiding to: {destination} — Turn left on 5th Ave, walk 2 blocks, it's on your right.")
+def start_talking():
+    print("🔊 Luna will resume talking.")
+    memory.update_flags({"silent_mode": False})
 
-# 8. Log the event to a local file
-def log_event_to_file(event_data, filename="safety_log.txt"):
-    try:
-        with open(filename, "a") as file:
-            file.write("\n----- EVENT LOG -----\n")
-            for key, value in event_data.items():
-                file.write(f"{key}: {value}\n")
-            file.write(f"Logged at: {datetime.now().isoformat()}\n")
-        print(f"📝 Event successfully logged to {filename}")
-    except Exception as e:
-        print(f"❌ Failed to log event: {e}")
+def call_police():
+    print("🚨 Simulated 911 call placed.")
+    # IRL: Trigger emergency call via Twilio Voice or OS-level call API
 
-# Example usage
-if __name__ == "__main__":
-    speak("I'm here with you. Stay calm.")
-    send_text_to_contacts()
-    call_police()
-    safe_spot = get_nearest_safe_location("New York, NY")
-    print(f"✅ Safe place: {safe_spot}")
-    record_voice_and_location()
-    stay_silent()
-    guide_to_safety(safe_spot)
-    test_event = {
-        "transcript": "Help, someone is following me",
-        "location": "New York, NY",
-        "flags": {"is_danger": True},
+def get_nearest_safe_location():
+    return {
+        "name": "Bright Cafe",
+        "distance_meters": 50,
+        "description": "Open cafe with people around"
     }
-    log_event_to_file(test_event)
