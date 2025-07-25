@@ -8,6 +8,8 @@ class Memory:
             "is_danger_mode": False,
             "last_route": None,
         }
+
+        self.actions_done = {}
         self.voice_log = []  # Stores voice transcripts
         self.agent_responses = []  # Stores Luna's actions
 
@@ -28,6 +30,28 @@ class Memory:
         print("Flags:", self.flags)
         print("Last 3 Transcripts:", self.voice_log[-3:])
         print("Last 3 Responses:", self.agent_responses[-3:])
+
+    def was_action_done(self, action_name):
+        return self.actions_done.get(action_name, False)
+    
+    def get_memory_snapshot(self):
+        # Return a lightweight memory snapshot for the planner
+        return {
+            "flags": self.flags,
+            "recent_voice_log": self.voice_log[-3:],
+            "recent_responses": self.agent_responses[-3:],
+            "actions_done": self.actions_done
+        }
+
+# External helper functions for executor
+def update_memory(action_name, status=True, memory=None):
+    if memory:
+        memory.update_action_done(action_name, status)
+
+def was_action_done(action_name, memory=None):
+    if memory:
+        return memory.was_action_done(action_name)
+    return False
 
 # Test
 if __name__ == "__main__":
