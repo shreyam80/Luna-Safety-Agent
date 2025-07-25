@@ -42,6 +42,12 @@ class Memory:
             "recent_responses": self.agent_responses[-3:],
             "actions_done": self.actions_done
         }
+    
+    def get_actions_done(self):
+        return self.actions_done
+
+    def update_action_done(self, action_name, status=True):
+        self.actions_done[action_name] = status
 
 # External helper functions for executor
 def update_memory(action_name, status=True, memory=None):
