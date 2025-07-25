@@ -5,6 +5,7 @@ Welcome! This repository is your starting point for the **Agentic AI App Hackath
 - A consistent folder structure  
 - An environment spec (`environment.yml` or `Dockerfile`)  
 - Documentation placeholders to explain your design and demo
+ - HI Soumya
 
 ## 📋 Submission Checklist
 
