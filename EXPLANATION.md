@@ -58,94 +58,62 @@ Here’s how Luna works behind the scenes every time you speak or move:
    This complexity allows Luna to balance between being too passive and too intrusive — always trying to feel like a calm friend, not an alarm.
 
 2. **Executor**
-Takes the plan from the planner and carries it out:
-
-Uses text-to-speech or offloads the audio to the frontend
-
-Makes calls via Twilio if instructed
-
-Ensures that critical actions like calling are only taken with user confirmation, or if urgent red flags are triggered
+    Takes the plan from the planner and carries it out:
+    - Uses text-to-speech or offloads the audio to the frontend
+    - Makes calls via Twilio if instructed
+    - Ensures that critical actions like calling are only taken with user confirmation, or if urgent red flags are triggered
 
 3. **Main Loop**
-The brain that runs the entire experience. It:
-
-Receives input from the frontend or sensors
-
-Manages timing and scheduling of planning + execution
-
-Uses multithreading to handle speech and sensor inputs in parallel without blocking responsiveness
+    The brain that runs the entire experience. It:
+    - Receives input from the frontend or sensors
+    - Manages timing and scheduling of planning + execution
+    - Uses multithreading to handle speech and sensor inputs in parallel without blocking responsiveness
 
 4. **Memory**
-Stores user-specific data about the current trip and recent interactions. For example:
-
-Has Luna already asked this user if they’re okay?
-
-Did the user already decline help?
-
-Has the user stopped walking in an unusual place?
-
-Eventually, this will expand to include past trip histories and patterns.
+    Stores user-specific data about the current trip and recent interactions. For example:
+    - Has Luna already asked this user if they’re okay?
+    - Did the user already decline help?
+    - Has the user stopped walking in an unusual place?
+    - Eventually, this will expand to include past trip histories and patterns.
 
 5. **Sensors**
-Analyzes GPS, speed, and potential route deviation. In future iterations, it may also infer tone of voice, changes in breathing, or sudden phone movement.
+    Analyzes GPS, speed, and potential route deviation. In future iterations, it may also infer tone of voice, changes in breathing, or sudden phone movement.
 
 ## 3. Tool Integration
 
 - **Google Gemini API**
-
-Called from planner.py with structured prompts and fallback retries
-
-Uses few-shot examples to guide the LLM in safety-oriented, calm responses
+    Called from planner.py with structured prompts and fallback retries. It uses few-shot examples to guide the LLM in safety-oriented, calm responses.
 
 - **Twilio API**
-
-Used by executor.py to call a contact or emergency number
-
-Confirmed via LLM-driven logic before initiating
+    Used by executor.py to call a contact or emergency number (police) and notify the close circle (using contacts) via text that their loved one may be in danger. Confirmed via LLM-driven logic before initiating.
 
 - **Supabase**
+    Used to store:
+    - User profile info (age, gender, preferences)
+    - Trip logs and timestamps
+    - Action history (e.g., when Luna intervened)
 
-Used to store:
-
-User profile info (age, gender, preferences)
-
-Trip logs and timestamps
-
-Action history (e.g., when Luna intervened)
-
-Accessed via REST with authentication headers using an internal HTTP client
+    This is accessed via REST with authentication headers using an internal HTTP client
 
 - **FastAPI**
 
-Serves endpoints like:
+    Serves endpoints like:
 
-/transcribe_audio (main loop input)
+    NEED TO FILL THIS OUT STILL!!!!!!!!
 
-/start_trip, /end_trip
-
-/set_silent_mode
-
-Connects the Swift frontend to the backend intelligence layer
+    Connects the Swift frontend to the backend intelligence layer
 
 ## 4. Observability & Testing
 
 - **Logging**
 
-Every planning and execution decision is logged to logs/luna_decisions.log with timestamps and module traces.
+    Every planning and execution decision is logged to logs/luna_decisions.log with timestamps and module traces.
 
-All LLM prompts and outputs are stored with session IDs (anonymized) for future analysis or rollback.
+    All LLM prompts and outputs are stored with session IDs (anonymized) for future analysis or rollback.
 
 - **Testing**
 
-TEST.sh runs a full path test of:
-
-A user speech transcript (mocked)
-
-Planner decision
-
-Executor response
-
-Supabase log entry
+    NEED TO DO THIS SECTION
 
 - **Error Handling**
 
