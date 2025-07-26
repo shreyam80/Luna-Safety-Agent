@@ -103,12 +103,52 @@ def stay_silent(username="shreya"):
     print("🤫 Silent mode activated.")
 
 def start_talking():
-    print("🔊 Luna will resume talking.")
-    memory.update_flags({"silent_mode": False})
+    if not memory.get_flag("is_silent_mode"):
+        print("🗣️ Luna is already in talking mode.")
+        return
+
+    # Step 1: Flip the flag
+    memory.update_flags({"is_silent_mode": False})
+    
+    # Step 2: Log the safety event
+    username = "shreya"  # Eventually make this dynamic
+    log_safety_event(username, event_type="talking_resumed", details="Luna has resumed talking mode.")
+
+    # Step 3: Confirm to user
+    print("✅ Luna will now begin speaking again.")
+    
+    # Step 4: Mark the action done
+    memory.update_action_done("start_talking", "")
 
 def call_police():
-    print("🚨 Simulated 911 call placed.")
-    # IRL: Trigger emergency call via Twilio Voice or OS-level call API
+    username = "shreya"  # You can parameterize this later
+    user = get_user_by_username(username)
+    phone_number = user.get("phone_number")  # User’s own phone for now
+
+    if not phone_number:
+        print("🚫 No phone number available to call.")
+        return
+
+    try:
+        call = client.calls.create(
+            to=phone_number,
+            from_=twilio_number,
+            twiml='<Response><Say voice="alice">This is Luna. The user may be in danger. Authorities are being contacted.</Say></Response>'
+        )
+        print(f"📞 Call initiated to police/user. SID: {call.sid}")
+
+        # Log safety event in DB
+        log_safety_event(user_id=user["id"], event_type="call_police", notes="Police called by Luna")
+
+        # Update memory
+        memory.update_action_done("call_police", {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "phone_called": phone_number,
+            "sid": call.sid
+        })
+
+    except Exception as e:
+        print(f"❌ Failed to call police: {e}")
 
 def get_nearest_safe_location():
     return {

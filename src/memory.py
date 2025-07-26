@@ -10,7 +10,7 @@ class Memory:
             "last_route": None,
         }
 
-        self.actions_done = {}
+        self.actions_done_log = []
         self.voice_log = []  # Stores voice transcripts
         self.agent_responses = []  # Stores Luna's actions
 
@@ -47,17 +47,23 @@ class Memory:
     def get_actions_done(self):
         return self.actions_done
 
-    def update_action_done(self, action_name, status=True):
-        self.actions_done[action_name] = status
+    def update_action_done(self, action_name, details=None):
+        self.actions_done_log.append({
+        "action": action_name,
+        "timestamp": datetime.utcnow().isoformat(),
+        "details": details
+    })
 
 # External helper functions for executor
+'''
 def update_memory(action_name, status=True, memory=None):
     if memory:
         memory.update_action_done(action_name, status)
+        '''
 
 def was_action_done(action_name, memory=None):
     if memory:
-        return memory.was_action_done(action_name)
+        return any(entry["action"] == action_name for entry in memory.actions_done_log)
     return False
 
 memory = Memory()
