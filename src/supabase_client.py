@@ -2,6 +2,7 @@
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+from datetime import datetime
 
 load_dotenv()
 
@@ -26,6 +27,33 @@ def get_user_by_username(username):
 def get_emergency_contacts(user_id):
     response = supabase.table("emergency_contacts").select("*").eq("user_id", user_id).execute()
     return response.data
+
+def log_safety_event(user_id, event_type, description=None):
+    try:
+        timestamp = datetime.utcnow().isoformat()
+        data = {
+            "user_id": user_id,
+            "event_type": event_type,
+            "timestamp": timestamp,
+            "description": description or ""
+        }
+
+        response = supabase.table("safety_logs").insert(data).execute()
+
+        if response.data:
+            print("📝 Safety event logged.")
+        else:
+            print("⚠️ Logging safety event failed:", response)
+    except Exception as e:
+        print(f"❌ Error logging safety event: {e}")
+
+
+
+
+
+
+
+
 
 # Example usage
 if __name__ == "__main__":

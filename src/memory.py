@@ -1,11 +1,12 @@
 # memory.py
 # This module stores and retrieves persistent memory for the agent
+from datetime import datetime
 
 class Memory:
     def __init__(self):
         # Initial internal memory store
         self.flags = {
-            "is_danger_mode": False,
+            "is_silent_mode": False,
             "last_route": None,
         }
 

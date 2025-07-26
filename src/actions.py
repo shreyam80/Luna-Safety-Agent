@@ -2,7 +2,7 @@
 # This module performs real-world actions (mocked for testing)
 
 from datetime import datetime
-from supabase_client import get_user_by_username, get_emergency_contacts
+from supabase_client import get_user_by_username, get_emergency_contacts, log_safety_event
 
 # ✅ Available actions per spec:
 # - speak(message)
@@ -84,9 +84,23 @@ def record_voice_and_location(location=None):
 
 from memory import memory
 
-def stay_silent():
-    print("🔇 Luna will stop talking.")
-    memory.update_flags({"silent_mode": True})
+def stay_silent(username="shreya"):
+    print('activating silent mode')
+    user = get_user_by_username(username)
+    user_id = user["id"]
+
+    # Log safety event
+    log_safety_event(
+        user_id=user_id,
+        event_type="silent_mode_triggered",
+        description="Agent entered silent mode due to danger inference.",
+    )
+
+    # Update agent memory
+    memory.update_flags({"is_silent_mode": True})
+    memory.log_response("Luna is now in silent mode.")
+
+    print("🤫 Silent mode activated.")
 
 def start_talking():
     print("🔊 Luna will resume talking.")
