@@ -2,10 +2,13 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 from src.memory import memory
-from src.planner import plan_action
-from src.executor import execute_action
+from src.sensors import start_sensor_background_thread
+from src.main import process_one_segment
 
 app = FastAPI()
+
+class TranscriptRequest(BaseModel):
+    transcript: str
 
 class MessageInput(BaseModel):
     message: str
@@ -13,9 +16,32 @@ class MessageInput(BaseModel):
 class ReasonInput(BaseModel):
     reason: str = "manual override"
 
-@app.post("/speak")
-async def speak(input: MessageInput):
-    return
+@app.on_event("startup")
+async def startup_event():
+    print("🚀 Luna server starting...")
+    start_sensor_background_thread()
+
+@app.post("/transcribe")
+async def transcribe(request: Request):
+    data = await request.json()
+    transcript = data.get("transcript", "")
+    print(f"🎙️ Heard (from iOS): {transcript}")
+
+    response = process_one_segment(transcript)
+
+    return {"status": "ok", "response": response}
+
+'''
+    subtasks = plan_next_actions(
+        transcript,
+        flags,
+        memory.get_memory_snapshot(),
+        memory.get_actions_done_log()
+    )
+
+    result = execute_subtasks(subtasks)
+    return result or "I'm here with you. What's going on?"
+'''
 
 @app.post("/stay_silent")
 async def stay_silent(input: ReasonInput):

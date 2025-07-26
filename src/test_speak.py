@@ -1,4 +1,9 @@
-# test_speak.py
-from actions import speak
+import google.generativeai as genai
+import os
+from dotenv import load_dotenv
 
-speak("Hi, I'm Luna. I'm here to keep you safe.")
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+for model in genai.list_models():
+    print(model.name)

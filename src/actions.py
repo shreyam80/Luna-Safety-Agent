@@ -2,7 +2,7 @@
 # This module performs real-world actions (mocked for testing)
 
 from datetime import datetime
-from supabase_client import get_user_by_username, get_emergency_contacts, log_safety_event
+from src.supabase_client import get_user_by_username, get_emergency_contacts, log_safety_event
 
 # ✅ Available actions per spec:
 # - speak(message)
@@ -16,8 +16,11 @@ from supabase_client import get_user_by_username, get_emergency_contacts, log_sa
 # 1. Say something to the user
 
 import pyttsx3
+import os
+from dotenv import load_dotenv
 
 load_dotenv()
+
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 
@@ -36,9 +39,7 @@ def speak(text):
         print("⚠️ Error using text-to-speech:", e)
 
 
-from dotenv import load_dotenv
 from twilio.rest import Client
-import os
 
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
@@ -47,7 +48,7 @@ twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
 client = Client(account_sid, auth_token)
 
 # 2. Notify user’s emergency contacts
-def send_text_to_contacts(contact_list, message="This is Luna. Shreya may be in danger. Please check on them immediately."):
+def send_text_to_contacts():
     username = "shreya"
 
     user = get_user_by_username(username)
@@ -82,7 +83,7 @@ def record_voice_and_location(location=None):
             f.write(f"{now} | Location: {location}\n")
     print("🎙️ Voice and location logging simulated.")
 
-from memory import memory
+from src.memory import memory
 
 def stay_silent(username="shreya"):
     print('activating silent mode')

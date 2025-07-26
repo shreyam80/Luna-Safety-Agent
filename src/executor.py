@@ -1,5 +1,5 @@
 # executor.py
-from actions import (
+from src.actions import (
     speak,
     send_text_to_contacts,
     call_police,
@@ -8,7 +8,7 @@ from actions import (
     stay_silent,
     start_talking
 )
-from memory import update_memory, was_action_done
+from src.memory import memory
 
 # Execute each subtask returned by the planner
 def execute_subtasks(subtasks, memory):
@@ -17,7 +17,7 @@ def execute_subtasks(subtasks, memory):
         text = task.get("text")  # This may be None for actions that don’t need it
 
         # 1. Speak the explanation if provided
-        if action != "stay_silent" and memory.get("is_silent") == False and text:
+        if action != "stay_silent" and memory.get_flag("is_silent_mode") == False and text:
             speak(text)
 
         # 2. Handle each supported action
@@ -26,17 +26,17 @@ def execute_subtasks(subtasks, memory):
             continue
 
         elif action == "send_text_to_contacts":
-            if not was_action_done("send_text_to_contacts", memory):
+            if not memory.was_action_done("send_text_to_contacts"):
                 send_text_to_contacts()
-                update_memory("send_text_to_contacts", True)
+                memory.update_action_done("send_text_to_contacts", True)
             else:
                 print("Skipping: Already notified contacts.")
 
         elif action == "call_police":
-            if not was_action_done("call_police", memory):
+            if not memory.was_action_done("call_police"):
                 # This assumes user confirmation was already obtained
                 call_police()
-                update_memory("call_police", True)
+                memory.update_action_done("call_police", True)
             else:
                 print("Skipping: Already called police.")
 
@@ -48,11 +48,11 @@ def execute_subtasks(subtasks, memory):
             get_nearest_safe_location()
 
         elif action == "stay_silent":
-            update_memory("is_silent", True)
+            memory.update_flags({"is_silent_mode": True})
             print("Luna will stay silent until told to speak.")
 
         elif action == "start_talking":
-            update_memory("is_silent", False)
+            memory.update_flags({"is_silent_mode": False})
             speak("I'm here again. Let me know if you need help.")
 
         else:

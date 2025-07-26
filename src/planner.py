@@ -1,23 +1,54 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-from memory import memory
+from src.memory import memory
 
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+'''
 def call_gemini_planner(prompt: str):
-    model = genai.GenerativeModel("gemini-pro")
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
     response = model.generate_content(prompt)
-    
+    print(response)
     try:
-        # Try to safely evaluate the LLM response into a Python object (e.g., list of dicts)
+        raw = response.text.strip()
+
+        # Remove triple backticks and 'json' language hint if present
+        if raw.startswith("```"):
+          raw = raw.strip("```json").strip("```").strip()
+
+        # Try to safely parse it
         import ast
-        return ast.literal_eval(response.text)
+        return ast.literal_eval(raw)
+
     except Exception as e:
-        print("Error parsing Gemini output:", e)
-        print("Raw output:", response.text)
+        print("🔮 Error parsing Gemini output:", e)
+        print("🔮 Raw output:", response.text)
         return []
+        '''
+import ast  # Safely parses Python-like strings
+
+def call_gemini_planner(prompt: str):
+    model = genai.GenerativeModel("models/gemini-1.5-flash")
+    response = model.generate_content(prompt)
+    raw = response.candidates[0].content.parts[0].text.strip()
+
+    print("🧠 Raw Gemini Output:\n", raw)
+
+    # Remove triple backticks or wrapping markers if present
+    if raw.startswith("```"):
+        raw = raw.strip("```json").strip("```").strip()
+
+    try:
+        # Parse string with single quotes to Python list of dicts
+        subtasks = ast.literal_eval(raw)
+        return subtasks
+    except Exception as e:
+        print("❌ Failed to parse subtasks:", e)
+        return []
+
+
 
 # The planner takes user input, flags, and memory to generate the next set of subtasks.
 def plan_next_actions(transcript, flags, memory, actions_done):
@@ -30,7 +61,7 @@ Current danger flags:
 {flags}
 
 Memory Snapshot:
-{memory.get_memory_snapshot()}
+{memory}
 
 Actions already performed: {actions_done}
 
@@ -70,7 +101,7 @@ Critical actions (require permission):
 
 You must also respond to **direct user commands** like "call the police" or "stop talking" by initiating or stopping that action.
 
-Your output should be a JSON list of subtasks like this:
+Your output should be a **Python list of dictionaries**. Do NOT wrap it in triple backticks or use markdown formatting. Just return the raw list like this:
 [
   {{"action": "speak", "text": "I'm here with you. Let's stay safe."}},
   {{"action": "record_voice_and_location"}},

@@ -1,6 +1,9 @@
 
 # This module gathers real-world input: (mocked) voice transcription and location data
 from datetime import datetime
+import time
+from src.memory import memory
+import threading
 
 # Mocked function to simulate speech-to-text transcription
 def get_voice_transcript():
@@ -49,6 +52,23 @@ def get_sensor_data():
         "location": location,
         "timestamp": datetime.now().isoformat()
     }
+
+def update_sensor_memory():
+    print("📡 Sensor data updated")
+    memory.update_flags({
+        "last_location": {"lat": 40.7128, "lon": -74.0060},
+        "speed_mph": 2.5
+    })
+
+def read_sensor_data():
+    while True:
+        update_sensor_memory()
+        time.sleep(1)
+
+def start_sensor_background_thread():
+    sensor_thread = threading.Thread(target=read_sensor_data)
+    sensor_thread.daemon = True
+    sensor_thread.start()
 
 # For testing this file directly
 if __name__ == "__main__":

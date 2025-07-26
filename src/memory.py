@@ -33,7 +33,7 @@ class Memory:
         print("Last 3 Responses:", self.agent_responses[-3:])
 
     def was_action_done(self, action_name):
-        return self.actions_done.get(action_name, False)
+        return any(entry["action"] == action_name for entry in memory.actions_done_log)
     
     def get_memory_snapshot(self):
         # Return a lightweight memory snapshot for the planner
@@ -41,11 +41,11 @@ class Memory:
             "flags": self.flags,
             "recent_voice_log": self.voice_log[-3:],
             "recent_responses": self.agent_responses[-3:],
-            "actions_done": self.actions_done
+            "actions_done": self.actions_done_log
         }
     
     def get_actions_done(self):
-        return self.actions_done
+        return self.actions_done_log
 
     def update_action_done(self, action_name, details=None):
         self.actions_done_log.append({
@@ -60,11 +60,6 @@ def update_memory(action_name, status=True, memory=None):
     if memory:
         memory.update_action_done(action_name, status)
         '''
-
-def was_action_done(action_name, memory=None):
-    if memory:
-        return any(entry["action"] == action_name for entry in memory.actions_done_log)
-    return False
 
 memory = Memory()
 

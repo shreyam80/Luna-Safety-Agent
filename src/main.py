@@ -1,8 +1,8 @@
 import threading
 import time
-from memory import memory
-from planner import plan_next_actions
-from executor import execute_subtasks
+from src.memory import memory
+from src.planner import plan_next_actions
+from src.executor import execute_subtasks
 
 # Dummy functions you'll replace with real ones
 def get_latest_transcript():
@@ -27,7 +27,38 @@ def read_sensor_data():
         update_sensor_memory()
         time.sleep(1)
 
+def process_one_segment(transcript: str):
+    print(f"🎙️ Heard: {transcript}")
+
+    flags = {
+        "tone_anxiety": True,
+        "danger_keywords": True,
+        "silent_mode": False
+    }
+
+    memory.update_flags(flags)
+    memory.log_transcript(transcript)
+
+    subtasks = plan_next_actions(
+        transcript,
+        flags,
+        memory.get_memory_snapshot(),
+        memory.get_actions_done()
+    )
+
+    execute_subtasks(subtasks, memory)
+
+    speak_outputs = [
+        task["text"] for task in subtasks if task.get("action") == "speak"
+    ]
+
+    return speak_outputs or "I'm here with you. What's going on?"
+
+
+
 def main():
+    
+    '''
     # Start the sensor thread
     sensor_thread = threading.Thread(target=read_sensor_data)
     sensor_thread.daemon = True
@@ -62,5 +93,8 @@ def main():
         
         time.sleep(0.2)  # Keep CPU usage low
 
+    
 if __name__ == "__main__":
     main()
+
+    '''
