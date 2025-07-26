@@ -5,7 +5,7 @@
 
 Below is the high level architecture diagram of Luna, our voice-activated safety agent.
 
-![Luna Architecture](./images/luna_architecture.png)
+![Luna Architecture](./images/diagram.png)
 
 ## Components
 
