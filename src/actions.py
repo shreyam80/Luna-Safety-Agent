@@ -2,6 +2,7 @@
 # This module performs real-world actions (mocked for testing)
 
 from datetime import datetime
+from supabase_client import get_user_by_username, get_emergency_contacts
 
 # ✅ Available actions per spec:
 # - speak(message)
@@ -15,6 +16,10 @@ from datetime import datetime
 # 1. Say something to the user
 
 import pyttsx3
+
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_API_KEY = os.getenv("SUPABASE_API_KEY")
 
 # Initialize engine once globally
 tts_engine = pyttsx3.init()
@@ -35,8 +40,6 @@ from dotenv import load_dotenv
 from twilio.rest import Client
 import os
 
-load_dotenv()
-
 account_sid = os.getenv("TWILIO_ACCOUNT_SID")
 auth_token = os.getenv("TWILIO_AUTH_TOKEN")
 twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
@@ -44,21 +47,30 @@ twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
 client = Client(account_sid, auth_token)
 
 # 2. Notify user’s emergency contacts
-def send_text_to_contacts(contact_list, message="This is Luna. The user may be in danger. Please check on them immediately."):
+def send_text_to_contacts(contact_list, message="This is Luna. Shreya may be in danger. Please check on them immediately."):
+    username = "shreya"
+
+    user = get_user_by_username(username)
+    user_id = user.get("id")
+    contact_list = get_emergency_contacts(user_id)
+
     if not contact_list:
         print("🚫 No contacts to notify.")
         return
 
     for contact in contact_list:
+        contact_name = contact.get("contact_name", "Contact")
+        contact_phone = contact.get("contact_phone")
+        personalized_message = f"Hi {contact_name}, this is Luna. {user['name']} may be in danger. Please check on them immediately."
         try:
             msg = client.messages.create(
-                body=message,
+                body=personalized_message,
                 from_=twilio_number,
-                to=contact
+                to=contact_phone
             )
-            print(f"✅ Message sent to {contact}. SID: {msg.sid}")
+            print(f"✅ Message sent to {contact_name}. SID: {msg.sid}")
         except Exception as e:
-            print(f"❌ Failed to send message to {contact}: {e}")
+            print(f"❌ Failed to send message to {contact_phone}: {e}")
 
 import datetime
 
