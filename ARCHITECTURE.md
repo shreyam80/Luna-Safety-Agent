@@ -9,7 +9,7 @@ Below is the high level architecture diagram of Luna, our voice-activated safety
 
 ## Components
 
-1. **User Interface**  
+1. **User Interface**
    - iOS App (Swift) with Mic input, Location tracking, Start/Stop Trip UI, and ability to begin Silent Mode (for dangerous situations where user does not want Luna to speak)
 
 2. **Agent Core**  
